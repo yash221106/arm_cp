@@ -1,0 +1,113 @@
+#include <Servo.h>
+
+// ------- Servo Setup -------
+Servo baseServo;
+Servo midServo;
+Servo nearServo;
+Servo clawServo;
+
+// Pin numbers
+const int BASE_PIN = 8;
+const int MID_PIN = 9;
+const int NEAR_PIN = 10;
+const int CLAW_PIN = 2;
+
+// Claw Limits
+const int CLAW_OPEN = 0;
+const int CLAW_CLOSED = 20;
+
+// ----- Smooth movement function -----
+void moveSmooth(Servo &servo, int targetAngle) {
+  int current = servo.read();
+  if (current == targetAngle) return;
+
+  int step = (targetAngle > current) ? 1 : -1;
+
+  for (int pos = current; pos != targetAngle; pos += step) {
+    servo.write(pos);
+    delay(5);
+  }
+  servo.write(targetAngle);
+}
+
+// ------- Setup -------
+void setup() {
+  Serial.begin(9600);
+
+  baseServo.attach(BASE_PIN);
+  midServo.attach(MID_PIN);
+  nearServo.attach(NEAR_PIN);
+  clawServo.attach(CLAW_PIN);
+
+  baseServo.write(80);
+  midServo.write(95);
+  nearServo.write(45);
+  clawServo.write(CLAW_OPEN);
+
+  Serial.println("Robotic Arm Ready");
+}
+
+// ------- Loop -------
+void loop() {
+  if (Serial.available()) {
+    String command = Serial.readStringUntil(':');
+    int value = Serial.parseInt();
+
+    // Clear buffer
+    while (Serial.available()) Serial.read();
+
+    command.trim();
+
+    // -------- Base Servo --------
+    if (command == "B") {
+      moveSmooth(baseServo, value);
+      Serial.println("Base OK");
+    }
+
+    // -------- Mid Servo --------
+    else if (command == "M") {
+      moveSmooth(midServo, value);
+      Serial.println("Mid OK");
+    }
+
+    // -------- Near Servo --------
+    else if (command == "N") {
+      moveSmooth(nearServo, value);
+      Serial.println("Near OK");
+    }
+
+    // -------- Claw Servo --------
+    else if (command == "C" || command == "CL") {
+
+      if (value == 0) {
+        moveSmooth(clawServo, CLAW_OPEN);
+        Serial.println("Claw OPEN");
+      } 
+      else if (value == 1) {
+        moveSmooth(clawServo, CLAW_CLOSED);
+        Serial.println("Claw CLOSED");
+      }
+      else {
+        moveSmooth(clawServo, value);
+        Serial.println("Claw angle OK");
+      }
+    }
+
+    // -------- Emergency STOP --------
+    else if (command == "STOP") {
+      baseServo.detach();
+      midServo.detach();
+      nearServo.detach();
+      clawServo.detach();
+
+      delay(300);
+
+      baseServo.attach(BASE_PIN);
+      midServo.attach(MID_PIN);
+      nearServo.attach(NEAR_PIN);
+      clawServo.attach(CLAW_PIN);
+
+      Serial.println("EMERGENCY STOP");
+    }
+  }
+}
