@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robotic Arm Control</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Voice Authentication Overlay -->
+    <div id="lockOverlay" class="lock-overlay">
+        <div class="lock-content">
+            <div class="lock-icon">🔐</div>
+            <h2>Voice Biometric Authentication</h2>
+
+            <!-- Setup Phase -->
+            <div id="setupPhase" class="voice-section">
+                <div class="info-box">
+                    <p><strong>First Time Setup:</strong></p>
+                    <p>Record your voice 3 times saying: <strong>"Unlock robotic arm"</strong></p>
+                    <p>This creates your unique voice profile.</p>
+                </div>
+                <button id="recordBtn" class="voice-btn">
+                    🎤 Record Voice Sample <span id="recordCount">(1/3)</span>
+                </button>
+                <div class="waveform" id="waveform" style="display: none;">
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                    <div class="waveform-bar"></div>
+                </div>
+                <div class="training-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="voice-status" id="trainingStatus">Recording sample 1 of 3...</p>
+                </div>
+            </div>
+
+            <!-- Authentication Phase -->
+            <div id="authPhase" class="voice-section" style="display: none;">
+                <div class="info-box">
+                    <p><strong>Voice Profile Created!</strong></p>
+                    <p>Say: <strong>"Unlock robotic arm"</strong> to authenticate</p>
+                </div>
+                <button id="authenticateBtn" class="voice-btn">🎤 Authenticate Voice</button>
+                <p class="voice-status" id="authStatus"></p>
+                <button id="resetVoiceBtn" class="btn btn-warning" style="margin-top: 15px;">
+                    Reset Voice Profile
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Controller Interface -->
+    <div class="container">
+        <div class="header">
+            <h1>🦾 Robotic Arm Controller</h1>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div id="connectionIndicator" class="status-indicator"></div>
+                <span id="connectionStatus">Disconnected</span>
+            </div>
+            <div class="status-item">
+                <div id="lockIndicator" class="status-indicator locked"></div>
+                <span id="lockStatus">Locked - Voice Auth Required</span>
+            </div>
+            <button id="connectBtn" class="btn btn-primary">Connect to Arduino</button>
+        </div>
+
+        <!-- Servo Controls Grid -->
+        <div class="controls-grid">
+            <!-- Base Servo -->
+            <div class="control-group">
+                <label>⚙️ Base Servo</label>
+                <div class="slider-container">
+                    <input type="range" id="base" min="0" max="180" value="80" disabled>
+                    <div class="value-display"><span id="baseValue">80</span>°</div>
+                </div>
+            </div>
+
+            <!-- Mid Servo -->
+            <div class="control-group">
+                <label>⚙️ Mid Servo</label>
+                <div class="slider-container">
+                    <input type="range" id="mid" min="0" max="180" value="95" disabled>
+                    <div class="value-display"><span id="midValue">95</span>°</div>
+                </div>
+            </div>
+
+            <!-- Near Servo -->
+            <div class="control-group">
+                <label>⚙️ Near Servo</label>
+                <div class="slider-container">
+                    <input type="range" id="near" min="0" max="180" value="45" disabled>
+                    <div class="value-display"><span id="nearValue">45</span>°</div>
+                </div>
+            </div>
+
+            <!-- Claw Servo -->
+            <div class="control-group">
+                <label>🦞 Claw Servo</label>
+                <div class="slider-container">
+                    <input type="range" id="claw" min="0" max="20" value="0" disabled>
+                    <div class="value-display"><span id="clawValue">0</span>°</div>
+                </div>
+                <div class="button-group">
+                    
+                    <button id="clawOpen" class="btn btn-success" disabled>Open</button>
+                    <button id="clawClose" class="btn bt
+                    n-danger" disabled>Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Stop -->
+        <button id="emergencyStop" class="emergency-stop" disabled>
+            🛑 EMERGENCY STOP
+        </button>
+    </div>
+
+    <!-- TensorFlow.js for AI Voice Recognition -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+
+    <!-- JavaScript Files -->
+    <script src="voiceAuth.js"></script>
+    <script src="serialComm.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>
